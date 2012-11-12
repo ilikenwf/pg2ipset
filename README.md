@@ -34,6 +34,27 @@ Help text:
 	Output is suitable for usage by 'ipset -R', blank or '-' prints to stdout.
 	Set name is 'IPFILTER' if not specified.
 	Example: curl http://www.example.com/guarding.p2p | ./pg2ipset | ipset -R
+	
+
+IMPORTANT!!!
+	Once you've created your ipsets and imported them as mentioned above, 
+	you'll need iptables rules for each of them to do the actual blocking.
+	
+	To block any traffic coming in from addresses in "listname:"
+		iptables -A INPUT -m set --set listname src -j DROP
+		iptables -A FORWARD -m set --set listname src -j DROP
+	
+	To block any traffic going out to an address in "listname:"
+		iptables -A FORWARD -m set --set listname dst -j REJECT
+		iptables -A OUTPUT -m set --set listname dst -j REJECT
+
+========
+AUTOMATIC LIST UPDATING
+========
+
+I have included my ipset-update.sh script, which I run on a daily 
+cron job. Please read through and edit it to your desires, should you
+want to automatically update your blocklists.
 
 ========
 LICENSE
