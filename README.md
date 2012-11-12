@@ -16,7 +16,8 @@ other methods.
 INSTALLATION
 ========
 
-make && make install
+make build && make install 
+(or just run make as root)
 
 ========
 USAGE
