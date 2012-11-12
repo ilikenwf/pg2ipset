@@ -16,9 +16,7 @@ other methods.
 INSTALLATION
 ========
 
-gcc -O3 -o pg2ipset pg2ipset.c
-chmod +x pg2ipset
-mv pg2ipset /usr/bin
+make && make install
 
 ========
 USAGE
