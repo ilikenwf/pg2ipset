@@ -62,12 +62,9 @@ int main(int argc, char* argv[]) {
 	} else {
 		rulename = argv[3];
 	}
-	fprintf(ofp, "-N %s iptreemap\n", rulename);
 
 	while (getline(&line, &linelen, ifp) > 0) {
 		linecount++;
-		// :0.0.0.1-3.255.255.255
-
 		tok = line;
 
 		fromaddr = strrchr(tok, ':');
@@ -83,8 +80,7 @@ int main(int argc, char* argv[]) {
 			continue;
 		}
 		*toaddr++ = 0;
-
-		fprintf(ofp, "-A %s %s-%s\n", rulename, fromaddr, toaddr);
+		fprintf(ofp, "-A -exist %s %s-%s\n", rulename, fromaddr, toaddr);
 	}
 
 	fprintf(ofp, "COMMIT\n");
@@ -92,7 +88,4 @@ int main(int argc, char* argv[]) {
 	return 0;
 }
 
-
-
 // EOF
-
