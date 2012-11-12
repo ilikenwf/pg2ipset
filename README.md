@@ -1,4 +1,59 @@
-pg2ipset
+pg2ipset - Originally written by Maeyanie.com 
+Improvements/fixes added by ilikenwf and whoever puts in pull requests
+
+========
+ABOUT
 ========
 
-pg2ipset -  Converts PG2 IP Blocklists into lists that ipset under Linux can consume. 
+info: http://www.maeyanie.com/2008/12/efficient-iptables-peerguardian-blocklist/
+
+pg2ipset takes the contents of PG2 IP Blocklists and outputs lists that
+ipset under Linux can consume, for more efficient blocking than most 
+other methods.
+
+
+========
+INSTALLATION
+========
+
+gcc -O3 -o pg2ipset pg2ipset.c
+chmod +x pg2ipset
+mv pg2ipset /usr/bin
+
+========
+USAGE
+========
+
+To import from a .txt list from bluetack:
+	cat /path/to/blocklist.txt | pg2ipset - - listname | ipset -R
+
+To import from a .gz list:
+	zcat /path/to/blocklist.gz | pg2ipset - - listname | ipset -R
+
+Help text:
+	Usage: ./pg2ipset [<input> [<output> [<set name>]]]
+	Input should be a PeerGuardian .p2p file, blank or '-' reads from stdin.
+	Output is suitable for usage by 'ipset -R', blank or '-' prints to stdout.
+	Set name is 'IPFILTER' if not specified.
+	Example: curl http://www.example.com/guarding.p2p | ./pg2ipset | ipset -R
+
+========
+LICENSE
+========
+
+	pg2ipset.c - Convert PeerGuardian lists to IPSet scripts.
+	Copyright (C) 2009-2010, me@maeyanie.com
+
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License along
+	with this program; if not, write to the Free Software Foundation, Inc.,
+	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
