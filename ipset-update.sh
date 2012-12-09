@@ -13,15 +13,14 @@ lists=(badpeers level1 level2 level3 spyware dshield bogon templist iana-multica
 
 for list in ${lists[@]}
 do
-        if [ eval $(curl -L http://www.bluetack.co.uk/config/$list.gz -o /tmp/$list.gz) ]; then
-                echo "Using fresh list for $list."
+        if [ eval $(curl -s -L http://www.bluetack.co.uk/config/$list.gz -o /tmp/$list.gz) ]; then
                 mv /tmp/$list.gz $LISTDIR/$list.gz
         else
                 echo "Using cached list for $list."
         fi
 
-        ipset create -exist $list hash:net maxelem 4294967295
-        ipset create -exist $list-TMP hash:net maxelem 4294967295
+        ipset create -exist $list hash:net family inet maxelem 4294967295
+        ipset create -exist $list-TMP hash:net family inet maxelem 4294967295
         ipset flush $list-TMP &> /dev/null
         zcat $LISTDIR/$list.gz | pg2ipset - - $list-TMP | ipset -R
         ipset -W $list $list-TMP
@@ -29,7 +28,6 @@ do
 done
 
 if [ eval $(curl -L http://ipinfodb.com/country_query.php?country=AF,AE,IR,IQ,TR,CN,SA,SY,RU,UA,HK,ID,KZ,KW,LY -o /tmp/countries.txt) ]; then
-        echo "Using fresh list for country blocklist."
         mv /tmp/countries.txt $LISTDIR/countries.txt
 else
         echo "Using cached list of blocked countries."
