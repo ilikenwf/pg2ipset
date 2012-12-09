@@ -84,7 +84,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	fprintf(ofp, "COMMIT\n");
-	fprintf(stderr, "Converted %u rules.\n", linecount);
+//	fprintf(stderr, "Converted %u rules.\n", linecount);
 	return 0;
 }
 
