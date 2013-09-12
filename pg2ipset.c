@@ -37,9 +37,9 @@ int main(int argc, char* argv[]) {
 	if (argc == 2 && (!strcmp(argv[1], "-h") || !strcmp(argv[1], "--help"))) {
 		fprintf(stderr, "Usage: %s [<input> [<output> [<set name>]]]\n", argv[0]);
 		fprintf(stderr, "Input should be a PeerGuardian .p2p file, blank or '-' reads from stdin.\n");
-		fprintf(stderr, "Output is suitable for usage by 'ipset -R', blank or '-' prints to stdout.\n");
+		fprintf(stderr, "Output is suitable for usage by 'ipset restore', blank or '-' prints to stdout.\n");
 		fprintf(stderr, "Set name is 'IPFILTER' if not specified.\n");
-		fprintf(stderr, "Example: curl http://www.example.com/guarding.p2p | %s | ipset -R\n", argv[0]);
+		fprintf(stderr, "Example: curl http://www.example.com/guarding.p2p | %s | ipset restore\n", argv[0]);
 		return 0;
 	}
 
@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
 			continue;
 		}
 		*toaddr++ = 0;
-		fprintf(ofp, "-A -exist %s %s-%s\n", rulename, fromaddr, toaddr);
+		fprintf(ofp, "add -exist %s %s-%s\n", rulename, fromaddr, toaddr);
 	}
 
 	fprintf(ofp, "COMMIT\n");
