@@ -24,17 +24,17 @@ USAGE
 ========
 
 To import from a .txt list from bluetack:
-	cat /path/to/blocklist.txt | pg2ipset - - listname | ipset -R
+	cat /path/to/blocklist.txt | pg2ipset - - listname | ipset restore
 
 To import from a .gz list:
-	zcat /path/to/blocklist.gz | pg2ipset - - listname | ipset -R
+	zcat /path/to/blocklist.gz | pg2ipset - - listname | ipset restore
 
 Help text:
 	Usage: ./pg2ipset [<input> [<output> [<set name>]]]
 	Input should be a PeerGuardian .p2p file, blank or '-' reads from stdin.
-	Output is suitable for usage by 'ipset -R', blank or '-' prints to stdout.
+	Output is suitable for usage by 'ipset restore', blank or '-' prints to stdout.
 	Set name is 'IPFILTER' if not specified.
-	Example: curl http://www.example.com/guarding.p2p | ./pg2ipset | ipset -R
+	Example: curl http://www.example.com/guarding.p2p | ./pg2ipset | ipset restore
 	
 
 IMPORTANT!!!
