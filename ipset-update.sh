@@ -62,21 +62,25 @@ if [ $ENABLE_BLUETACK = 1 ]; then
 	# get, parse, and import the bluetack lists
 	# they are special in that they are gz compressed and require
 	# pg2ipset to be inserted
+	i=1
 	for list in ${BLUETACK[@]}; do
-			if [ eval $(wget --quiet -O /tmp/$list.gz http://list.iblocklist.com/?list=$list&fileformat=p2p&archiveformat=gz) ]; then
-					mv /tmp/$list.gz $LISTDIR/$list.gz
+			listname="bluetack$i"
+			if [ eval $(wget --quiet -O /tmp/$listname.gz http://list.iblocklist.com/?list=$list&fileformat=p2p&archiveformat=gz) ]; then
+					mv /tmp/$listname.gz $LISTDIR/$listname.gz
 			else
 					echo "Using cached list for $list."
 			fi
 			
 			echo "Importing bluetack list $list..."
 
-			ipset create -exist $list hash:net family inet maxelem 4294967295
-			ipset create -exist $list-TMP hash:net family inet maxelem 4294967295
+			ipset create -exist $listname hash:net family inet maxelem 4294967295
+			ipset create -exist $listname-TMP hash:net family inet maxelem 4294967295
 			ipset flush $list-TMP &> /dev/null
-			zcat $LISTDIR/$list.gz | grep  -v \# | grep -v ^$ | pg2ipset - - $list-TMP | ipset restore
-			ipset swap $list $list-TMP
-			ipset destroy $list-TMP
+			zcat $LISTDIR/$listname.gz | grep  -v \# | grep -v ^$ | pg2ipset - - $listname-TMP | ipset restore
+			ipset swap $listname $listname-TMP
+			ipset destroy $listname-TMP
+			
+			i=$((i+1))
 	done
 fi
 
