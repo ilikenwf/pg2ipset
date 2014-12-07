@@ -21,6 +21,13 @@ make build && make install
 (or just run make as root)
 
 ========
+CONFIGURATION
+========
+
+See the comments above each variable and array in the ipset-update.sh
+script to configure it to block the ip lists of your choosing.
+
+========
 USAGE
 ========
 
