@@ -10,13 +10,14 @@ LISTDIR="/var/cache/blocklists"
 [ ! -d $LISTDIR ] && mkdir $LISTDIR
 
 # countries to block, must be lcase
-COUNTRIES=(af,ae,ir,iq,tr,cn,sa,sy,ru,ua,hk,id,kz,kw,ly)
+COUNTRIES=(af ae ir iq tr cn sa sy ru ua hk id kz kw ly)
 
-# bluetack lists to use
-BLUETACK=(badpeers level1 level2 level3 spyware dshield bogon templist iana-multicast iana-reserved hijacked proxy ads-trackers-and-bad-pr0n)
+# bluetack lists to use - they now obfuscate these so get them from
+# https://www.iblocklist.com/lists.php
+BLUETACK=(ydxerpxkpcfqjaybcssw gyisgnzbhppbvsphucsw uwnukjqktoggdknzrhgh llvtlsjyoyiczbkjsxpf xpbqleszmajjesnzddhv lujdnbasfaaixitgmxpp dufcxgnbjsdwmwctgfuj zfucwtjkfwkalytktyiw bcoepfyewziejvcqyhqo pwqnlynprfgtjbgqoizj usrcshglbiilevmyfhse zbdlwrqkabxbcppvrnos usrcshglbiilevmyfhse ficutxiwawokxlcyoeye ghlzqtqxnzctvvajwwag)
 
 # ports to block tor users from
-PORTS=(80,443,6667,22,3306)
+PORTS=(80 443 6667 22 3306)
 
 # remove old countries list
 [ -f $LISTDIR/countries.txt ] && rm $LISTDIR/countries.txt
@@ -62,7 +63,7 @@ if [ $ENABLE_BLUETACK==1 ]; then
 	# they are special in that they are gz compressed and require
 	# pg2ipset to be inserted
 	for list in ${BLUETACK[@]}; do
-			if [ eval $(curl -s -L http://www.bluetack.co.uk/config/$list.gz -o /tmp/$list.gz) ]; then
+			if [ eval $(curl -s -L http://list.iblocklist.com/?list=&fileformat=p2p&archiveformat=gz -o /tmp/$list.gz) ]; then
 					mv /tmp/$list.gz $LISTDIR/$list.gz
 			else
 					echo "Using cached list for $list."
