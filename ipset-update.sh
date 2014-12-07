@@ -63,7 +63,7 @@ if [ $ENABLE_BLUETACK==1 ]; then
 	# they are special in that they are gz compressed and require
 	# pg2ipset to be inserted
 	for list in ${BLUETACK[@]}; do
-			if [ eval $(curl -s -L http://list.iblocklist.com/?list=$list&fileformat=p2p&archiveformat=gz -o /tmp/$list.gz) ]; then
+			if [ eval $(wget -O /tmp/$list.gz http://list.iblocklist.com/?list=ydxerpxkpcfqjaybcssw&fileformat=p2p&archiveformat=gz) ]; then
 					mv /tmp/$list.gz $LISTDIR/$list.gz
 			else
 					echo "Using cached list for $list."
