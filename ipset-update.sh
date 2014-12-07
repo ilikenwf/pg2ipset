@@ -82,10 +82,10 @@ if [ $ENABLE_BLUETACK = 1 ]; then
 			
 			# if they aren't already there, go ahead and setup block rules
 			# in iptables
-			iptables -A INPUT -m set --match-set $1 src -j DROP
-			iptables -A FORWARD -m set --match-set $1 src -j DROP
-			iptables -A FORWARD -m set --match-set $1 dst -j REJECT
-			iptables -A OUTPUT -m set --match-set $1 dst -j REJECT
+			iptables -A INPUT -m set --match-set $listname src -j DROP
+			iptables -A FORWARD -m set --match-set $listname src -j DROP
+			iptables -A FORWARD -m set --match-set $listname dst -j REJECT
+			iptables -A OUTPUT -m set --match-set $listname dst -j REJECT
 			
 			i=$((i+1))
 	done
