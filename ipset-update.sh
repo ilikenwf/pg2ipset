@@ -43,7 +43,7 @@ importTextList(){
 		ipset create -exist $1 hash:net maxelem 4294967295
 		ipset create -exist $1-TMP hash:net maxelem 4294967295
 		ipset flush countries-TMP &> /dev/null
-		awk '!x[$0]++' $LISTDIR/$1.txt | sed -e "s/^/\-A\ \-exist\ $1\ /" | sed -e 's/#.*$//' | sed -e '/^$/d' | ipset restore
+		awk '!x[$0]++' $LISTDIR/$1.txt | sed -e "s/^/\-A\ \-exist\ $1\ /" | awk '!/^($|#)/' | ipset restore
 		ipset swap countries $1-TMP
 		ipset destroy $1-TMP
 		
@@ -74,7 +74,7 @@ if [ $ENABLE_BLUETACK==1 ]; then
 			ipset create -exist $list hash:net family inet maxelem 4294967295
 			ipset create -exist $list-TMP hash:net family inet maxelem 4294967295
 			ipset flush $list-TMP &> /dev/null
-			zcat $LISTDIR/$list.gz | sed -e 's/#.*$//' | sed -e '/^$/d' | pg2ipset - - $list-TMP | ipset restore
+			zcat $LISTDIR/$list.gz | awk '!/^($|#)/' | pg2ipset - - $list-TMP | ipset restore
 			ipset swap $list $list-TMP
 			ipset destroy $list-TMP
 	done
