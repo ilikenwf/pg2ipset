@@ -23,7 +23,8 @@ plain text based blocklists easily, for scheduling via cron.
 INSTALLATION
 ========
 
-make build && make install 
+```make build && make install```
+
 (or just run make as root)
 
 ========
@@ -38,14 +39,20 @@ USAGE
 ========
 
 To manually import from a .txt list from bluetack:
+
 ```cat /path/to/blocklist.txt | pg2ipset - - listname | ipset restore```
 
+
 To manually import from a .gz list:
+
 ```zcat /path/to/blocklist.gz | pg2ipset - - listname | ipset restore```
+
 	
 To manually import a txt list of only IP addresses and/or CIDR ranges, 
 make sure to remove all comments and empty lines, then do the following:
+
 ```awk '!x[$0]++' /path/to/blocklist.txt | sed -e "s/^/\-A\ \-exist\ listname\ /" | grep  -v \# | grep -v ^$ | ipset restore```
+
 
 Help text:
 	Usage: ./pg2ipset [<input> [<output> [<set name>]]]
