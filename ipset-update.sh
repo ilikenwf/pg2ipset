@@ -96,6 +96,13 @@ importTextList(){
 		awk '!x[$0]++' $LISTDIR/$1.txt | sed -e "s/^/\-A\ \-exist\ $1\ /" | ipset restore
 		ipset swap countries $1-TMP
 		ipset destroy $1-TMP
+		
+		# if they aren't already there, go ahead and setup block rules
+		# in iptables
+		iptables -A INPUT -m set --match-set $1 src -j DROP
+		iptables -A FORWARD -m set --match-set $1 src -j DROP
+		iptables -A FORWARD -m set --match-set $1 dst -j REJECT
+		iptables -A OUTPUT -m set --match-set $1 dst -j REJECT
 	else
 		echo "List $1.txt does not exist."
 	fi
