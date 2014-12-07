@@ -42,7 +42,7 @@ importTextList(){
 		echo "Importing $1 blocks..."
 		ipset create -exist $1 hash:net maxelem 4294967295
 		ipset create -exist $1-TMP hash:net maxelem 4294967295
-		ipset flush countries-TMP &> /dev/null
+		ipset flush $1-TMP &> /dev/null
 		awk '!x[$0]++' $LISTDIR/$1.txt | sed -e "s/^/\-A\ \-exist\ $1\ /" | grep  -v \# | grep -v ^$ | ipset restore
 		ipset swap countries $1-TMP
 		ipset destroy $1-TMP
