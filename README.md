@@ -2,10 +2,14 @@
 ABOUT
 ========
 
-Information: 
+Information:
+
 http://ipset.netfilter.org/
+
 https://wiki.archlinux.org/index.php/Ipset
+
 http://www.maeyanie.com/2008/12/efficient-iptables-peerguardian-blocklist/
+
 
 pg2ipset takes the contents of PG2 IP Blocklists and outputs lists that
 ipset under Linux can consume, for more efficient blocking than most 
