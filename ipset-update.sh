@@ -27,21 +27,6 @@ do
         ipset destroy $list-TMP
 done
 
-if [ eval $(curl -L http://ipinfodb.com/country_query.php?country=AF,AE,IR,IQ,TR,CN,SA,SY,RU,UA,HK,ID,KZ,KW,LY -o /tmp/countries.txt) ]; then
-        mv /tmp/countries.txt $LISTDIR/countries.txt
-else
-        echo "Using cached list of blocked countries."
-fi
-
-echo "Importing country blocks..."
-ipset create -exist countries hash:net maxelem 4294967295
-ipset create -exist countries-TMP hash:net maxelem 4294967295
-ipset flush countries-TMP &> /dev/null
-awk '!x[$0]++' $LISTDIR/countries.txt | sed -e 's/^/\-A\ \-exist\ countries\ /' | ipset restore
-ipset swap countries countries-TMP
-ipset destroy countries-TMP
-
-
 echo "Importing Custom blocks..."
 ipset create -exist Custom hash:net maxelem 4294967295
 ipset create -exist Custom-TMP hash:net maxelem 4294967295
