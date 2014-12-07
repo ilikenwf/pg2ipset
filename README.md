@@ -1,15 +1,17 @@
-pg2ipset - Originally written by Maeyanie.com 
-Improvements/fixes added by ilikenwf and whoever puts in pull requests
-
 ========
 ABOUT
 ========
 
-info: http://www.maeyanie.com/2008/12/efficient-iptables-peerguardian-blocklist/
+Information: 
+http://ipset.netfilter.org/
+https://wiki.archlinux.org/index.php/Ipset
+http://www.maeyanie.com/2008/12/efficient-iptables-peerguardian-blocklist/
 
 pg2ipset takes the contents of PG2 IP Blocklists and outputs lists that
 ipset under Linux can consume, for more efficient blocking than most 
-other methods. The ipset-update.sh script helps import these and
+other methods. 
+
+The ipset-update.sh script helps import these and
 plain text based blocklists easily, for scheduling via cron.
 
 
@@ -31,11 +33,15 @@ script to configure it to block the ip lists of your choosing.
 USAGE
 ========
 
-To import from a .txt list from bluetack:
-	cat /path/to/blocklist.txt | pg2ipset - - listname | ipset restore
+To manually import from a .txt list from bluetack:
+```cat /path/to/blocklist.txt | pg2ipset - - listname | ipset restore```
 
-To import from a .gz list:
-	zcat /path/to/blocklist.gz | pg2ipset - - listname | ipset restore
+To manually import from a .gz list:
+```zcat /path/to/blocklist.gz | pg2ipset - - listname | ipset restore```
+	
+To manually import a txt list of only IP addresses and/or CIDR ranges, 
+make sure to remove all comments and empty lines, then do the following:
+```awk '!x[$0]++' /path/to/blocklist.txt | sed -e "s/^/\-A\ \-exist\ listname\ /" | grep  -v \# | grep -v ^$ | ipset restore```
 
 Help text:
 	Usage: ./pg2ipset [<input> [<output> [<set name>]]]
@@ -59,6 +65,10 @@ LICENSE
 
 	pg2ipset.c - Convert PeerGuardian lists to IPSet scripts.
 	Copyright (C) 2009-2010, me@maeyanie.com
+	
+	ipset-update.sh - Automatically update and import pg2 format
+	and text based ipset blocklists.
+	Copyright (C) 2012-2015, parwok@gmail.com
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
