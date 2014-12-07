@@ -27,10 +27,12 @@ do
         ipset destroy $list-TMP
 done
 
-echo "Importing Custom blocks..."
-ipset create -exist Custom hash:net maxelem 4294967295
-ipset create -exist Custom-TMP hash:net maxelem 4294967295
-ipset flush Custom-TMP &> /dev/null
-awk '!x[$0]++' $LISTDIR/Custom.txt | sed -e 's/^/\-A\ \-exist\ Custom\ /' | ipset restore
-ipset swap Custom Custom-TMP
-ipset destroy Custom-TMP
+if [ -f $LISTDIR/custom.txt ]; then
+	echo "Importing custom blocks..."
+	ipset create -exist custom hash:net maxelem 4294967295
+	ipset create -exist custom-TMP hash:net maxelem 4294967295
+	ipset flush custom-TMP &> /dev/null
+	awk '!x[$0]++' $LISTDIR/custom.txt | sed -e 's/^/\-A\ \-exist\ custom\ /' | ipset restore
+	ipset swap custom custom-TMP
+	ipset destroy custom-TMP
+fi
