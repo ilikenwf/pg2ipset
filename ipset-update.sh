@@ -36,6 +36,27 @@ ENABLE_TORBLOCK=1
 # enable custom blocks?
 ENABLE_CUSTOM=1
 
+importTextList(){
+	if [ -f $LISTDIR/$1.txt ]; then
+		echo "Importing $1 blocks..."
+		ipset create -exist countries hash:net maxelem 4294967295
+		ipset create -exist countries-TMP hash:net maxelem 4294967295
+		ipset flush countries-TMP &> /dev/null
+		awk '!x[$0]++' $LISTDIR/$1.txt | sed -e "s/^/\-A\ \-exist\ $1\ /" | ipset restore
+		ipset swap countries $1-TMP
+		ipset destroy $1-TMP
+		
+		# if they aren't already there, go ahead and setup block rules
+		# in iptables
+		iptables -A INPUT -m set --match-set $1 src -j DROP
+		iptables -A FORWARD -m set --match-set $1 src -j DROP
+		iptables -A FORWARD -m set --match-set $1 dst -j REJECT
+		iptables -A OUTPUT -m set --match-set $1 dst -j REJECT
+	else
+		echo "List $1.txt does not exist."
+	fi
+}
+
 if [ $ENABLE_BLUETACK==1 ]; then
 	# get, parse, and import the bluetack lists
 	# they are special in that they are gz compressed and require
@@ -86,24 +107,3 @@ fi
 if [ $ENABLE_CUSTOM==1 ]; then
 	importTextList "custom"
 fi
-
-importTextList(){
-	if [ -f $LISTDIR/$1.txt ]; then
-		echo "Importing $1 blocks..."
-		ipset create -exist countries hash:net maxelem 4294967295
-		ipset create -exist countries-TMP hash:net maxelem 4294967295
-		ipset flush countries-TMP &> /dev/null
-		awk '!x[$0]++' $LISTDIR/$1.txt | sed -e "s/^/\-A\ \-exist\ $1\ /" | ipset restore
-		ipset swap countries $1-TMP
-		ipset destroy $1-TMP
-		
-		# if they aren't already there, go ahead and setup block rules
-		# in iptables
-		iptables -A INPUT -m set --match-set $1 src -j DROP
-		iptables -A FORWARD -m set --match-set $1 src -j DROP
-		iptables -A FORWARD -m set --match-set $1 dst -j REJECT
-		iptables -A OUTPUT -m set --match-set $1 dst -j REJECT
-	else
-		echo "List $1.txt does not exist."
-	fi
-}
