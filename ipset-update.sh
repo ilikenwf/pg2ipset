@@ -25,7 +25,7 @@ PORTS=(80,443,6667,22,3306)
 [ -f $LISTDIR/tor.txt ] && rm $LISTDIR/tor.txt
 
 # enable bluetack lists?
-ENABLE_BLUETACK=0
+ENABLE_BLUETACK=1
 
 # enable country blocks?
 ENABLE_COUNTRY=1
