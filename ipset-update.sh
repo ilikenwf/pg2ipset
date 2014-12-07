@@ -27,6 +27,29 @@ do
         ipset destroy $list-TMP
 done
 
+countries=(af,ae,ir,iq,tr,cn,sa,sy,ru,ua,hk,id,kz,kw,ly)
+
+[ -f $LISTDIR/countries.txt ] && rm $LISTDIR/countries.txt
+
+for country in ${countries[@]}
+do
+        if [ eval $(curl -s -L http://www.ipdeny.com/ipblocks/data/countries/$country.zone -o /tmp/$country.txt) ]; then
+                cat /tmp/$country.txt >> $LISTDIR/countries.txt
+                rm $LISTDIR/countries.txt
+        fi
+done 
+
+if [ -f $LISTDIR/countries.txt ]; then
+	echo "Importing country blocks..."
+	ipset create -exist countries hash:net maxelem 4294967295
+	ipset create -exist countries-TMP hash:net maxelem 4294967295
+	ipset flush countries-TMP &> /dev/null
+	awk '!x[$0]++' $LISTDIR/countries.txt | sed -e 's/^/\-A\ \-exist\ countries\ /' | ipset restore
+	ipset swap countries countries-TMP
+	ipset destroy countries-TMP
+fi
+
+
 if [ -f $LISTDIR/custom.txt ]; then
 	echo "Importing custom blocks..."
 	ipset create -exist custom hash:net maxelem 4294967295
