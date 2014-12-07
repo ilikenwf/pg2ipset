@@ -68,23 +68,14 @@ int main(int argc, char* argv[]) {
 		tok = line;
 
 		fromaddr = strrchr(tok, ':');
-		if (!fromaddr) {
-			fprintf(stderr, "Line %u: Failed parsing 'from' address.\n", linecount);
-			continue;
-		}
 		*fromaddr++ = 0;
 
 		toaddr = strchr(fromaddr, '-');
-		if (!toaddr) {
-			fprintf(stderr, "Line %u: Failed parsing 'to' address.\n", linecount);
-			continue;
-		}
 		*toaddr++ = 0;
 		fprintf(ofp, "add -exist %s %s-%s\n", rulename, fromaddr, toaddr);
 	}
 
 	fprintf(ofp, "COMMIT\n");
-//	fprintf(stderr, "Converted %u rules.\n", linecount);
 	return 0;
 }
 

@@ -14,7 +14,7 @@ COUNTRIES=(af ae ir iq tr cn sa sy ru ua hk id kz kw ly)
 
 # bluetack lists to use - they now obfuscate these so get them from
 # https://www.iblocklist.com/lists.php
-BLUETACK=(ydxerpxkpcfqjaybcssw gyisgnzbhppbvsphucsw uwnukjqktoggdknzrhgh llvtlsjyoyiczbkjsxpf xpbqleszmajjesnzddhv lujdnbasfaaixitgmxpp dufcxgnbjsdwmwctgfuj zfucwtjkfwkalytktyiw bcoepfyewziejvcqyhqo pwqnlynprfgtjbgqoizj usrcshglbiilevmyfhse zbdlwrqkabxbcppvrnos usrcshglbiilevmyfhse ficutxiwawokxlcyoeye ghlzqtqxnzctvvajwwag)
+BLUETACK=(ydxerpxkpcfqjaybcssw gyisgnzbhppbvsphucsw uwnukjqktoggdknzrhgh llvtlsjyoyiczbkjsxpf xpbqleszmajjesnzddhv lujdnbasfaaixitgmxpp dufcxgnbjsdwmwctgfuj bcoepfyewziejvcqyhqo pwqnlynprfgtjbgqoizj usrcshglbiilevmyfhse zbdlwrqkabxbcppvrnos usrcshglbiilevmyfhse ficutxiwawokxlcyoeye ghlzqtqxnzctvvajwwag)
 
 # ports to block tor users from
 PORTS=(80 443 6667 22 3306)
@@ -40,8 +40,8 @@ ENABLE_CUSTOM=1
 importTextList(){
 	if [ -f $LISTDIR/$1.txt ]; then
 		echo "Importing $1 blocks..."
-		ipset create -exist countries hash:net maxelem 4294967295
-		ipset create -exist countries-TMP hash:net maxelem 4294967295
+		ipset create -exist $1 hash:net maxelem 4294967295
+		ipset create -exist $1-TMP hash:net maxelem 4294967295
 		ipset flush countries-TMP &> /dev/null
 		awk '!x[$0]++' $LISTDIR/$1.txt | sed -e "s/^/\-A\ \-exist\ $1\ /" | ipset restore
 		ipset swap countries $1-TMP
