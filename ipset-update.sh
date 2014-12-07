@@ -58,7 +58,7 @@ importTextList(){
 	fi
 }
 
-if [ $ENABLE_BLUETACK==1 ]; then
+if [ $ENABLE_BLUETACK = 1 ]; then
 	# get, parse, and import the bluetack lists
 	# they are special in that they are gz compressed and require
 	# pg2ipset to be inserted
@@ -80,7 +80,7 @@ if [ $ENABLE_BLUETACK==1 ]; then
 	done
 fi
 
-if [ $ENABLE_COUNTRY==1 ]; then
+if [ $ENABLE_COUNTRY = 1 ]; then
 	# get the country lists and cat them into a single file
 	for country in ${COUNTRIES[@]}; do
 			if [ eval $(wget --quiet -O /tmp/$country.txt http://www.ipdeny.com/ipblocks/data/countries/$country.zone) ]; then
@@ -93,7 +93,7 @@ if [ $ENABLE_COUNTRY==1 ]; then
 fi
 
 
-if [ $ENABLE_TORBLOCK==1 ]; then
+if [ $ENABLE_TORBLOCK = 1 ]; then
 	# get the tor lists and cat them into a single file
 	for ip in $(ip -4 -o addr | awk '!/^[0-9]*: ?lo|link\/ether/ {gsub("/", " "); print $4}'); do
 			for port in ${PORTS[@]}; do
