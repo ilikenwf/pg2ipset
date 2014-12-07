@@ -26,7 +26,7 @@ PORTS=(80 443 6667 22 3306)
 [ -f $LISTDIR/tor.txt ] && rm $LISTDIR/tor.txt
 
 # enable bluetack lists?
-ENABLE_BLUETACK=1
+ENABLE_BLUETACK=0
 
 # enable country blocks?
 ENABLE_COUNTRY=1
@@ -81,7 +81,7 @@ fi
 if [ $ENABLE_COUNTRY==1 ]; then
 	# get the country lists and cat them into a single file
 	for country in ${COUNTRIES[@]}; do
-			if [ eval $(curl -s -L http://www.ipdeny.com/ipblocks/data/countries/$country.zone -o /tmp/$country.txt) ]; then
+			if [ eval $(wget --quiet -O /tmp/$country.txt http://www.ipdeny.com/ipblocks/data/countries/$country.zone) ]; then
 					cat /tmp/$country.txt >> $LISTDIR/countries.txt
 					rm /tmp/$country.txt
 			fi
@@ -95,7 +95,7 @@ if [ $ENABLE_TORBLOCK==1 ]; then
 	# get the tor lists and cat them into a single file
 	for ip in $(ip -4 -o addr | awk '!/^[0-9]*: ?lo|link\/ether/ {gsub("/", " "); print $4}'); do
 			for port in ${PORTS[@]}; do
-				if [ eval $(curl -s -L https://check.torproject.org/cgi-bin/TorBulkExitList.py?ip=$ip&port=$port -o /tmp/$port.txt) ]; then
+				if [ eval $(wget --quiet -O /tmp/$port.txt https://check.torproject.org/cgi-bin/TorBulkExitList.py?ip=$ip&port=$port) ]; then
 						cat /tmp/$port.txt >> $LISTDIR/tor.txt
 						rm /tmp/$port.txt
 				fi
