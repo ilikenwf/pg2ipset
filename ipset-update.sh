@@ -17,7 +17,7 @@ COUNTRIES=(af ae ir iq tr cn sa sy ru ua hk id kz kw ly)
 BLUETACK=(ydxerpxkpcfqjaybcssw gyisgnzbhppbvsphucsw uwnukjqktoggdknzrhgh llvtlsjyoyiczbkjsxpf xpbqleszmajjesnzddhv lujdnbasfaaixitgmxpp dufcxgnbjsdwmwctgfuj bcoepfyewziejvcqyhqo pwqnlynprfgtjbgqoizj usrcshglbiilevmyfhse zbdlwrqkabxbcppvrnos usrcshglbiilevmyfhse ficutxiwawokxlcyoeye ghlzqtqxnzctvvajwwag)
 
 # ports to block tor users from
-PORTS=(80 443 6667 22 3306)
+PORTS=(80 443 6667 22 21)
 
 # remove old countries list
 [ -f $LISTDIR/countries.txt ] && rm $LISTDIR/countries.txt
