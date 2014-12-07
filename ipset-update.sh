@@ -34,9 +34,6 @@ ENABLE_COUNTRY=1
 # enable tor blocks?
 ENABLE_TORBLOCK=1
 
-# enable custom blocks?
-ENABLE_CUSTOM=1
-
 importTextList(){
 	if [ -f $LISTDIR/$1.txt ]; then
 		echo "Importing $1 blocks..."
