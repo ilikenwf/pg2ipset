@@ -38,7 +38,7 @@ ENABLE_TORBLOCK=1
 IPTABLES=$(iptables-save)
 
 importList(){
-	if [ -f $LISTDIR/$1.txt ]; then
+	if [ -f $LISTDIR/$1.txt ] || [ -f $LISTDIR/$1.gz ]; then
 		echo "Importing $1 blocks..."
 		ipset create -exist $1 hash:net maxelem 4294967295
 		ipset create -exist $1-TMP hash:net maxelem 4294967295
@@ -54,8 +54,9 @@ importList(){
 		ipset swap $1 $1-TMP
 		ipset destroy $1-TMP
 		
-		#if the 
-		if ! echo $iptables|grep -q "\-A\ INPUT\ \-m\ set\ \-\-match\-set\ $1\ src\ \-\j\ DROP"; then
+		# if the first rule exists already, it is likely the others do too
+		# only create if they don't exist
+		if ! echo $IPTABLES|grep -q "\-A\ INPUT\ \-m\ set\ \-\-match\-set\ $1\ src\ \-\j\ DROP"; then
 		  iptables -A INPUT -m set --match-set $1 src -j DROP
 		  iptables -A FORWARD -m set --match-set $1 src -j DROP
 		  iptables -A FORWARD -m set --match-set $1 dst -j REJECT
