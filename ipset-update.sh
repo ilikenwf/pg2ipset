@@ -34,22 +34,33 @@ ENABLE_COUNTRY=1
 # enable tor blocks?
 ENABLE_TORBLOCK=1
 
-importTextList(){
+#cache a copy of the iptables rules
+IPTABLES=$(iptables-save)
+
+importList(){
 	if [ -f $LISTDIR/$1.txt ]; then
 		echo "Importing $1 blocks..."
 		ipset create -exist $1 hash:net maxelem 4294967295
 		ipset create -exist $1-TMP hash:net maxelem 4294967295
 		ipset flush $1-TMP &> /dev/null
-		awk '!x[$0]++' $LISTDIR/$1.txt | sed -e "s/^/\-A\ \-exist\ $1\ /" | grep  -v \# | grep -v ^$ | ipset restore
+		
+		#the second param determines if we need to use zcat or not
+		if [ $2 = 1 ]; then
+		  zcat $LISTDIR/$1.gz | grep  -v \# | grep -v ^$ | pg2ipset - - $listname-TMP | ipset restore
+		else
+		  awk '!x[$0]++' $LISTDIR/$1.txt | grep  -v \# | grep -v ^$ | ipset restore
+		fi
+		
 		ipset swap $1 $1-TMP
 		ipset destroy $1-TMP
 		
-		# if they aren't already there, go ahead and setup block rules
-		# in iptables
-		iptables -A INPUT -m set --match-set $1 src -j DROP
-		iptables -A FORWARD -m set --match-set $1 src -j DROP
-		iptables -A FORWARD -m set --match-set $1 dst -j REJECT
-		iptables -A OUTPUT -m set --match-set $1 dst -j REJECT
+		#if the 
+		if ! echo $iptables|grep -q "\-A\ INPUT\ \-m\ set\ \-\-match\-set\ $1\ src\ \-\j\ DROP"; then
+		  iptables -A INPUT -m set --match-set $1 src -j DROP
+		  iptables -A FORWARD -m set --match-set $1 src -j DROP
+		  iptables -A FORWARD -m set --match-set $1 dst -j REJECT
+		  iptables -A OUTPUT -m set --match-set $1 dst -j REJECT
+		fi
 	else
 		echo "List $1.txt does not exist."
 	fi
@@ -62,6 +73,7 @@ if [ $ENABLE_BLUETACK = 1 ]; then
 	i=1
 	for list in ${BLUETACK[@]}; do
 			listname="bluetack$i"
+		
 			if [ eval $(wget --quiet -O /tmp/$listname.gz http://list.iblocklist.com/?list=$list&fileformat=p2p&archiveformat=gz) ]; then
 					mv /tmp/$listname.gz $LISTDIR/$listname.gz
 			else
@@ -70,19 +82,7 @@ if [ $ENABLE_BLUETACK = 1 ]; then
 			
 			echo "Importing bluetack list $list..."
 
-			ipset create -exist $listname hash:net family inet maxelem 4294967295
-			ipset create -exist $listname-TMP hash:net family inet maxelem 4294967295
-			ipset flush $list-TMP &> /dev/null
-			zcat $LISTDIR/$listname.gz | grep  -v \# | grep -v ^$ | pg2ipset - - $listname-TMP | ipset restore
-			ipset swap $listname $listname-TMP
-			ipset destroy $listname-TMP
-			
-			# if they aren't already there, go ahead and setup block rules
-			# in iptables
-			iptables -A INPUT -m set --match-set $listname src -j DROP
-			iptables -A FORWARD -m set --match-set $listname src -j DROP
-			iptables -A FORWARD -m set --match-set $listname dst -j REJECT
-			iptables -A OUTPUT -m set --match-set $listname dst -j REJECT
+			importList $listname 1
 			
 			i=$((i+1))
 	done
@@ -97,7 +97,7 @@ if [ $ENABLE_COUNTRY = 1 ]; then
 			fi
 	done
 	
-	importTextList "countries"
+	importList "countries" 0
 fi
 
 
@@ -112,7 +112,7 @@ if [ $ENABLE_TORBLOCK = 1 ]; then
 			done
 	done 
 	
-	importTextList "tor"
+	importList "tor" 0
 fi
 
 # add any custom import lists below
