@@ -14,8 +14,8 @@ COUNTRIES=(af ae ir iq tr cn sa sy ru ua hk id kz kw ly)
 
 # bluetack lists to use - they now obfuscate these so get them from
 # https://www.iblocklist.com/lists.php
-BLUETACK=(ydxerpxkpcfqjaybcssw gyisgnzbhppbvsphucsw uwnukjqktoggdknzrhgh llvtlsjyoyiczbkjsxpf xpbqleszmajjesnzddhv lujdnbasfaaixitgmxpp dufcxgnbjsdwmwctgfuj bcoepfyewziejvcqyhqo pwqnlynprfgtjbgqoizj usrcshglbiilevmyfhse zbdlwrqkabxbcppvrnos usrcshglbiilevmyfhse ficutxiwawokxlcyoeye ghlzqtqxnzctvvajwwag)
-
+BLUETACKALIAS=(DShield Bogon Hijacked DROP ForumSpam WebExploit Ads Proxies BadSpiders CruzIT Zeus Palevo Malicious Malcode Adservers)
+BLUETACK=(xpbqleszmajjesnzddhv lujdnbasfaaixitgmxpp usrcshglbiilevmyfhse zbdlwrqkabxbcppvrnos ficutxiwawokxlcyoeye ghlzqtqxnzctvvajwwag dgxtneitpuvgqqcpfulq xoebmbyexwuiogmbyprb mcvxsnihddgutbjfbghy czvaehmjpsnwwttrdoyl ynkdjqsjyfmilsgbogqf erqajhwrxiuvjxqrrwfj npkuuhuxcsllnhoamkvm pbqcylkejciyhmwttify zhogegszwduurnvsyhdf) 
 # ports to block tor users from
 PORTS=(80 443 6667 22 21)
 
@@ -29,7 +29,7 @@ PORTS=(80 443 6667 22 21)
 ENABLE_BLUETACK=1
 
 # enable country blocks?
-ENABLE_COUNTRY=1
+ENABLE_COUNTRY=0
 
 # enable tor blocks?
 ENABLE_TORBLOCK=1
@@ -44,19 +44,24 @@ importList(){
 	ipset create -exist $1 hash:net maxelem 4294967295
 	ipset create -exist $1-TMP hash:net maxelem 4294967295
 	ipset flush $1-TMP &> /dev/null
-	
+
 	#the second param determines if we need to use zcat or not
 	if [ $2 = 1 ]; then
-	  zcat $LISTDIR/$1.gz | grep  -v \# | grep -v ^$ | pg2ipset - - $listname-TMP | ipset restore
+	  zcat $LISTDIR/$1.gz | grep  -v \# | grep -v ^$ | pg2ipset - - $1-TMP | ipset restore
 	else
-	  awk '!x[$0]++' $LISTDIR/$1.txt | grep  -v \# | grep -v ^$ | ipset restore
+	  awk '!x[$0]++' $LISTDIR/$1.txt | grep  -v \# | grep -v ^$ | sed -e "s/^/add\ \-exist\ $1\-TMP\ /" | ipset restore
 	fi
 	
-	ipset swap $1 $1-TMP
-	ipset destroy $1-TMP
+	ipset swap $1 $1-TMP &> /dev/null
+	ipset destroy $1-TMP &> /dev/null
 	
 	# only create if the iptables rules don't already exist
 	if ! echo $IPTABLES|grep -q "\-A\ INPUT\ \-m\ set\ \-\-match\-set\ $1\ src\ \-\j\ DROP"; then
+          iptables -A INPUT -m set --match-set $1 src -j ULOG --ulog-prefix "Blocked input $1"
+          iptables -A FORWARD -m set --match-set $1 src -j ULOG --ulog-prefix "Blocked fwd $1"
+          iptables -A FORWARD -m set --match-set $1 dst -j ULOG --ulog-prefix "Blocked fwd $1"
+          iptables -A OUTPUT -m set --match-set $1 dst -j ULOG --ulog-prefix "Blocked out $1"
+
 	  iptables -A INPUT -m set --match-set $1 src -j DROP
 	  iptables -A FORWARD -m set --match-set $1 src -j DROP
 	  iptables -A FORWARD -m set --match-set $1 dst -j REJECT
@@ -71,19 +76,17 @@ if [ $ENABLE_BLUETACK = 1 ]; then
   # get, parse, and import the bluetack lists
   # they are special in that they are gz compressed and require
   # pg2ipset to be inserted
-  i=1
-  for list in ${BLUETACK[@]}; do
-	listname="bluetack$i"
-  
-	if [ eval $(wget --quiet -O /tmp/$listname.gz http://list.iblocklist.com/?list=$list&fileformat=p2p&archiveformat=gz) ]; then
-	  mv /tmp/$listname.gz $LISTDIR/$listname.gz
+  i=0
+  for list in ${BLUETACK[@]}; do  
+	if [ eval $(wget --quiet -O /tmp/${BLUETACKALIAS[i]}.gz http://list.iblocklist.com/?list=$list&fileformat=p2p&archiveformat=gz) ]; then
+	  mv /tmp/${BLUETACKALIAS[i]}.gz $LISTDIR/${BLUETACKALIAS[i]}.gz
 	else
-	  echo "Using cached list for $list."
+	  echo "Using cached list for ${BLUETACKALIAS[i]}."
 	fi
 	
-	echo "Importing bluetack list $list..."
+	echo "Importing bluetack list ${BLUETACKALIAS[i]}..."
   
-	importList $listname 1
+	importList ${BLUETACKALIAS[i]} 1
 	
 	i=$((i+1))
   done
@@ -118,3 +121,4 @@ fi
 
 # add any custom import lists below
 # ex: importTextList "custom"
+
